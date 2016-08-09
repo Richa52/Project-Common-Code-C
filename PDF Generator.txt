@@ -1,0 +1,124 @@
+------------------------------------------------------------------------------
+//  Export data into PDF
+Dwnload iTextSharp.DLL : https://sourceforge.net/projects/itextsharp/files/
+
+before building the solution you need to use the Project > Add Reference menu command to provide a Reference to iTextSharp.DLL version 4.x. 
+
+private void ExportToPdf(DataTable dataTable)
+{
+Document document = new Document(PageSize.A4, 10, 10, 90, 10);
+System.IO.MemoryStream mStream = new System.IO.MemoryStream();
+PdfWriter writer = PdfWriter.GetInstance(pdfDoc, mStream);
+int cols = dataTable.Columns.Count;
+int rows = dataTable.Rows.Count;
+pdfDoc.Open();
+ 
+// pdfTable create and set
+iTextSharp.text.Table pdfTable = new iTextSharp.text.Table(cols, rows);
+pdfTable.BorderWidth = 1;
+pdfTable.Width = 100;
+pdfTable.Padding = 1;
+pdfTable.Spacing = 1;
+ 
+    //table headers
+for (int i = 0; i < cols; i++)
+{
+   Cell cellCols = new Cell();
+   Font ColFont = FontFactory.GetFont(FontFactory.HELVETICA, 12, Font.BOLD);
+   Chunk chunkCols = new Chunk(dataTable.Columns[i].ColumnName, ColFont);
+   cellCols.Add(chunkCols);
+   pdfTable.AddCell(cellCols);
+ 
+}
+ 
+
+    //table data 
+for (int k = 0; k < rows; k++)
+{
+    for (int j = 0; j < cols; j++)
+    {
+      Cell cellRows = new Cell();
+      Font RowFont = FontFactory.GetFont(FontFactory.HELVETICA, 12);
+      Chunk chunkRows = new Chunk(dataTable.Rows[k][j].ToString(), RowFont);
+      cellRows.Add(chunkRows);
+      pdfTable.AddCell(cellRows);
+ 
+    }
+}
+ 
+pdfDoc.Add(pdfTable);
+pdfDoc.Close();
+Response.ContentType = "application/octet-stream";
+Response.AddHeader("Content-Disposition", "attachment; filename=Datatable.pdf");
+Response.Clear();
+Response.BinaryWrite(mStream.ToArray());
+Response.End();
+ 
+}
+
+OR
+
+
+public void ExportToPdf(DataTable myDataTable)
+    {
+        Document pdfDoc = new Document(PageSize.A4, 10, 10, 10, 10);
+        try
+        {
+            PdfWriter.GetInstance(pdfDoc, System.Web.HttpContext.Current.Response.OutputStream);
+            pdfDoc.Open();
+            Chunk c = new Chunk("" + System.Web.HttpContext.Current.Session["CompanyName"] + "", FontFactory.GetFont("Verdana", 11));
+            Paragraph p = new Paragraph();
+            p.Alignment = Element.ALIGN_CENTER;
+            p.Add(c);
+            pdfDoc.Add(p);
+            string clientLogo = Server.MapPath(".") + "/logo/tpglogo.jpg";
+            string imageFilePath = Server.MapPath(".") + "/logo/tpglogo.jpg";
+            iTextSharp.text.Image jpg = iTextSharp.text.Image.GetInstance(imageFilePath);
+            //Resize image depend upon your need   
+            jpg.ScaleToFit(80f, 60f);
+            //Give space before image   
+            jpg.SpacingBefore = 0f;
+            //Give some space after the image   
+            jpg.SpacingAfter = 1f;
+            jpg.Alignment = Element.HEADER;
+            pdfDoc.Add(jpg);
+            Font font8 = FontFactory.GetFont("ARIAL", 7);
+            DataTable dt = myDataTable;
+            if (dt != null)
+            {
+                //Craete instance of the pdf table and set the number of column in that table  
+                PdfPTable PdfTable = new PdfPTable(dt.Columns.Count);
+                PdfPCell PdfPCell = null;
+                for (int rows = 0; rows < dt.Rows.Count; rows++)
+                {
+                    for (int column = 0; column < dt.Columns.Count; column++)
+                    {
+                        PdfPCell = new PdfPCell(new Phrase(new Chunk(dt.Rows[rows][column].ToString(), font8)));
+                        PdfTable.AddCell(PdfPCell);
+                    }
+                }
+                //PdfTable.SpacingBefore = 15f; // Give some space after the text or it may overlap the table            
+                pdfDoc.Add(PdfTable); // add pdf table to the document   
+            }
+            pdfDoc.Close();
+            Response.ContentType = "application/pdf";
+            Response.AddHeader("content-disposition", "attachment; filename= SampleExport.pdf");
+            System.Web.HttpContext.Current.Response.Write(pdfDoc);
+            Response.Flush();
+            Response.End();
+            //HttpContext.Current.ApplicationInstance.CompleteRequest();  
+        }
+        catch (DocumentException de)
+        {
+            System.Web.HttpContext.Current.Response.Write(de.Message);
+        }
+        catch (IOException ioEx)
+        {
+            System.Web.HttpContext.Current.Response.Write(ioEx.Message);
+        }
+        catch (Exception ex)
+        {
+            System.Web.HttpContext.Current.Response.Write(ex.Message);
+        }
+    }    
+--------------------------------------------------------------------------------------

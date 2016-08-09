@@ -1,0 +1,208 @@
+#region File & Folder Related Properties & Methods
+
+        /// <summary>
+        /// To Get File Bytes on base of passed file path
+        /// </summary>
+        /// <param name="fileNamewithPath">The file namewith path.</param>
+        /// <returns></returns>
+        public static byte[] GetFileBytes(string fileNamewithPath)
+        {
+            byte[] fileByte = null;
+            if (File.Exists(HttpContext.Current.Server.MapPath(fileNamewithPath)))
+            {
+                FileStream fstrm = new FileStream(HttpContext.Current.Server.MapPath(fileNamewithPath), System.IO.FileMode.Open, System.IO.FileAccess.Read);
+
+                fileByte = new byte[fstrm.Length];
+                fstrm.Read(fileByte, 0, fileByte.Length);
+                fstrm.Close();
+            }
+            return fileByte;
+        }
+
+        /// <summary>
+        /// Creates the directory.
+        /// </summary>
+        /// <param name="Path">The path.</param>
+        /// <returns></returns>
+        public static bool CreateDirectory(string Path)
+        {
+            if (!Directory.Exists(Path))
+            {
+                try
+                {
+                    Directory.CreateDirectory(Path);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+
+        /// <summary>
+        /// Deletes the directory.
+        /// </summary>
+        /// <param name="Path">The path.</param>
+        /// <param name="boolWithFiles">if set to <c>true</c> [delete with files].</param>
+        /// <returns></returns>
+        public static bool DeleteDirectory(string Path, bool boolWithFiles = false)
+        {
+            if (!Directory.Exists(Path))
+            {
+                try
+                {
+                    Directory.Delete(Path, boolWithFiles);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        //Save the file with File byte array
+        /// <summary>
+        /// Saves the file.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="fileName">Name of the file.</param>
+        /// <param name="fileByte">The file byte.</param>
+        /// <returns></returns>
+        public static bool SaveFile(string path, string fileName, byte[] fileByte)
+        {
+            if (CreateDirectory(path))
+            {
+                if (fileByte != null)
+                {
+                    FileStream fs = null;
+                    try
+                    {
+                        string fileActualName = fileName;
+                        fs = new FileStream(path + fileActualName, FileMode.Create, FileAccess.Write);
+                        fs.Write(fileByte, 0, fileByte.Length);
+                        fs.Flush();
+                        fs.Dispose();
+                        fs.Close();
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// Copies the file.
+        /// </summary>
+        /// <param name="sourcepath">The sourcepath.</param>
+        /// <param name="fileName">Name of the file.</param>
+        /// <param name="destinationpath">The destinationpath.</param>
+        /// <param name="overwrite">if set to <c>true</c> [overwrite existing file].</param>
+        /// <returns></returns>
+        public static bool CopyFile(string sourcepath, string fileName, string destinationpath, bool overwrite = true)
+        {
+            if (CreateDirectory(sourcepath))
+            {
+                FileInfo fi = new FileInfo(sourcepath);
+                fi.CopyTo(destinationpath, overwrite); // existing file will be overwritten
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        //Save the file normally
+        /// <summary>
+        /// Saves the file.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="fileName">Name of the file.</param>
+        /// <returns></returns>
+        public static bool SaveFile(string path, string fileName)
+        {
+            if (CreateDirectory(path))
+            {
+                FileStream fs = null;
+                try
+                {
+                    string fileActualName = fileName;
+                    fs = new FileStream(path + fileActualName, FileMode.Create, FileAccess.Write);
+                    fs.Flush();
+                    fs.Dispose();
+                    fs.Close();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Deletes the file.
+        /// </summary>
+        /// <param name="filenameWithPath">The filename with path.</param>
+        /// <returns></returns>
+        public static bool DeleteFile(string filenameWithPath)
+        {
+            try
+            {
+                if (File.Exists(filenameWithPath))
+                {
+                    File.Delete(filenameWithPath);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets the file extension.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        /// <returns></returns>
+        public static string GetFileExtension(string fileName)
+        {
+            if (fileName != null)
+                return fileName.Substring(fileName.LastIndexOf('.') + 1, fileName.Length - (fileName.LastIndexOf('.') + 1));
+            else
+                return null;
+        }
+
+        #endregion

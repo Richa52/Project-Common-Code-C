@@ -1,0 +1,307 @@
+In JavaScript,
+String.fromCharCode(e.keyCode); // Will not work in FF 
+String.fromCharCode(e.charCode); // Will work in FF 
+
+
+So you can use this
+var code = e.charCode || e.keyCode;
+String.fromCharCode(code); // Will work in all browsers 
+
+---------------------------------------------------
+
+C# 6.0 New Feature...
+
+// OLD Logic
+Public dynamic MethodName(BranchModel branch)
+{
+  if(branch != null)  
+ {
+  if(branch.BranchName != null) 
+  {
+   ... 
+   ...
+  }
+ }
+}
+or
+if(branch != null && branch.BranchName != null)  
+{
+}
+
+// NEW Logic
+Public dynamic MethodName(BranchModel branch)
+{
+ if(branch?.BranchName != null) 
+ {
+  ...
+  ...
+ }
+}
+
+-------------------------------------------------------------------
+C# 6.0 new feature...
+
+// OLD Logic
+ String.format("({0},{1})",X,Y); 
+
+
+// NEW Logic
+ $"({X},{Y})"; 
+
+--------------------------------------------------------------------
+//to send email from gmail using c#
+
+ protected string SendEmail(string toAddress, string subject, string body)
+   {
+     string result = “Message Sent Successfully..!!”;
+     string senderID = “SenderEmailID“;// use sender’s email id here..
+     const string senderPassword = “Password“; // sender password here…
+     try
+     {
+       SmtpClient smtp = new SmtpClient
+       {
+         Host = “smtp.gmail.com“, // smtp server address here…
+         Port = 587,
+         EnableSsl = true,
+         DeliveryMethod = SmtpDeliveryMethod.Network,
+         Credentials = new System.Net.NetworkCredential(senderID, senderPassword),
+         Timeout = 30000,
+       };
+       MailMessage message = new MailMessage(senderID, toAddress, subject, body);
+       smtp.Send(message);
+     }
+     catch (Exception ex)
+     {
+       result = “Error sending email.!!!”;
+     }
+     return result;
+   }
+--------------------------------------------------------------------------
+C# 6.0 new feature...
+
+// OLD Logic
+ 
+var result = new Jobject();
+result["x"] = X;
+result["y"] = Y;
+return result; 
+
+
+// NEW Logic
+
+return new Jobject() { ["x"] = X, ["y"] = Y };
+
+
+------------------------------------------------------------------------
+C# 6.0 new feature...
+
+// OLD Logic
+
+try
+{
+}
+catch(ConfigurationException e) 
+{
+}
+finally
+{
+}
+
+
+// NEW Logic
+try
+{
+}
+catch(ConfigurationException e) when (e.IsSevere)
+{
+}
+finally
+{
+}
+
+------------------------------------------------------------------------------
+//  Export data into PDF
+Dwnload iTextSharp.DLL : https://sourceforge.net/projects/itextsharp/files/
+
+before building the solution you need to use the Project > Add Reference menu command to provide a Reference to iTextSharp.DLL version 4.x. 
+
+private void ExportToPdf(DataTable dataTable)
+{
+Document document = new Document(PageSize.A4, 10, 10, 90, 10);
+System.IO.MemoryStream mStream = new System.IO.MemoryStream();
+PdfWriter writer = PdfWriter.GetInstance(pdfDoc, mStream);
+int cols = dataTable.Columns.Count;
+int rows = dataTable.Rows.Count;
+pdfDoc.Open();
+ 
+// pdfTable create and set
+iTextSharp.text.Table pdfTable = new iTextSharp.text.Table(cols, rows);
+pdfTable.BorderWidth = 1;
+pdfTable.Width = 100;
+pdfTable.Padding = 1;
+pdfTable.Spacing = 1;
+ 
+    //table headers
+for (int i = 0; i < cols; i++)
+{
+   Cell cellCols = new Cell();
+   Font ColFont = FontFactory.GetFont(FontFactory.HELVETICA, 12, Font.BOLD);
+   Chunk chunkCols = new Chunk(dataTable.Columns[i].ColumnName, ColFont);
+   cellCols.Add(chunkCols);
+   pdfTable.AddCell(cellCols);
+ 
+}
+ 
+
+    //table data 
+for (int k = 0; k < rows; k++)
+{
+    for (int j = 0; j < cols; j++)
+    {
+      Cell cellRows = new Cell();
+      Font RowFont = FontFactory.GetFont(FontFactory.HELVETICA, 12);
+      Chunk chunkRows = new Chunk(dataTable.Rows[k][j].ToString(), RowFont);
+      cellRows.Add(chunkRows);
+      pdfTable.AddCell(cellRows);
+ 
+    }
+}
+ 
+pdfDoc.Add(pdfTable);
+pdfDoc.Close();
+Response.ContentType = "application/octet-stream";
+Response.AddHeader("Content-Disposition", "attachment; filename=Datatable.pdf");
+Response.Clear();
+Response.BinaryWrite(mStream.ToArray());
+Response.End();
+ 
+}
+
+OR
+
+
+public void ExportToPdf(DataTable myDataTable)
+    {
+        Document pdfDoc = new Document(PageSize.A4, 10, 10, 10, 10);
+        try
+        {
+            PdfWriter.GetInstance(pdfDoc, System.Web.HttpContext.Current.Response.OutputStream);
+            pdfDoc.Open();
+            Chunk c = new Chunk("" + System.Web.HttpContext.Current.Session["CompanyName"] + "", FontFactory.GetFont("Verdana", 11));
+            Paragraph p = new Paragraph();
+            p.Alignment = Element.ALIGN_CENTER;
+            p.Add(c);
+            pdfDoc.Add(p);
+            string clientLogo = Server.MapPath(".") + "/logo/tpglogo.jpg";
+            string imageFilePath = Server.MapPath(".") + "/logo/tpglogo.jpg";
+            iTextSharp.text.Image jpg = iTextSharp.text.Image.GetInstance(imageFilePath);
+            //Resize image depend upon your need   
+            jpg.ScaleToFit(80f, 60f);
+            //Give space before image   
+            jpg.SpacingBefore = 0f;
+            //Give some space after the image   
+            jpg.SpacingAfter = 1f;
+            jpg.Alignment = Element.HEADER;
+            pdfDoc.Add(jpg);
+            Font font8 = FontFactory.GetFont("ARIAL", 7);
+            DataTable dt = myDataTable;
+            if (dt != null)
+            {
+                //Craete instance of the pdf table and set the number of column in that table  
+                PdfPTable PdfTable = new PdfPTable(dt.Columns.Count);
+                PdfPCell PdfPCell = null;
+                for (int rows = 0; rows < dt.Rows.Count; rows++)
+                {
+                    for (int column = 0; column < dt.Columns.Count; column++)
+                    {
+                        PdfPCell = new PdfPCell(new Phrase(new Chunk(dt.Rows[rows][column].ToString(), font8)));
+                        PdfTable.AddCell(PdfPCell);
+                    }
+                }
+                //PdfTable.SpacingBefore = 15f; // Give some space after the text or it may overlap the table            
+                pdfDoc.Add(PdfTable); // add pdf table to the document   
+            }
+            pdfDoc.Close();
+            Response.ContentType = "application/pdf";
+            Response.AddHeader("content-disposition", "attachment; filename= SampleExport.pdf");
+            System.Web.HttpContext.Current.Response.Write(pdfDoc);
+            Response.Flush();
+            Response.End();
+            //HttpContext.Current.ApplicationInstance.CompleteRequest();  
+        }
+        catch (DocumentException de)
+        {
+            System.Web.HttpContext.Current.Response.Write(de.Message);
+        }
+        catch (IOException ioEx)
+        {
+            System.Web.HttpContext.Current.Response.Write(ioEx.Message);
+        }
+        catch (Exception ex)
+        {
+            System.Web.HttpContext.Current.Response.Write(ex.Message);
+        }
+    }    
+--------------------------------------------------------------------------------------
+//  Export data into Excel
+
+public static void ExportToExcel(this DataTable Tbl, string ExcelFilePath = null)
+{
+try
+{
+if (Tbl == null || Tbl.Columns.Count == 0)
+throw new Exception("ExportToExcel: Null or empty input table!\n");
+
+// load excel, and create a new workbook
+ Excel.Application excelApp = new Excel.Application();
+excelApp.Workbooks.Add();
+
+// single worksheet
+Excel._Worksheet workSheet = excelApp.ActiveSheet;
+
+// column headings
+for (int i = 0; i < Tbl.Columns.Count; i++)
+{
+workSheet.Cells[1, (i + 1)] = Tbl.Columns[i].ColumnName;
+}
+
+// rows
+for (int i = 0; i < Tbl.Rows.Count; i++)
+{
+// to do: format datetime values before printing
+for (int j = 0; j < Tbl.Columns.Count; j++)
+{
+workSheet.Cells[(i + 2), (j + 1)] = Tbl.Rows[i][j];
+}
+}
+
+// check fielpath
+if (ExcelFilePath != null && ExcelFilePath != "")
+{
+try
+{
+workSheet.SaveAs(ExcelFilePath);
+excelApp.Quit();
+//MessageBox.Show("Excel file saved!");
+}
+catch (Exception ex)
+{
+throw new Exception("ExportToExcel: Excel file could not be saved! Check filepath.\n"
++ ex.Message);
+}
+}
+else // no filepath is given
+{
+excelApp.Visible = true;
+}
+}
+catch (Exception ex)
+{
+throw new Exception("ExportToExcel: \n" + ex.Message);
+}
+}
+
+--------------------------------------------------------
+https://facebookapi.codeplex.com/
+https://facebookapi.codeplex.com/SourceControl/latest#FacebookAPI/App.config
+https://facebookapi.codeplex.com/wikipage?title=Contents&referringTitle=Home
